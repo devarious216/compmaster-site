@@ -272,20 +272,25 @@
   world.add(mirror);
 
   // ---- Streams feeding the board ----
+  var NEXUS = new THREE.Vector3(0, 34, -4);
   var streamData = [];
   for (var sI = 0; sI < 8; sI++) {
-    var yy = 22 - sI * 5.4;
+    var side = sI < 4 ? -1 : 1;
+    var lane = sI % 4;
+    var yy = 30 - lane * 7;
     var curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-130, yy + 10, -20 + sI * 5),
-      new THREE.Vector3(-80, yy + Math.sin(sI * 1.7) * 8, 10 - sI * 2),
-      new THREE.Vector3(-42, yy * 0.45, -4),
-      new THREE.Vector3(-8, 1 + Math.sin(sI) * 2, (sI - 4) * 3),
+      new THREE.Vector3(side * 135, yy + 8, -24 + lane * 8),
+      new THREE.Vector3(side * 84, yy + Math.sin(sI * 1.7) * 7, 12 - lane * 4),
+      new THREE.Vector3(side * 38, (yy + NEXUS.y) * 0.5, NEXUS.z + 6),
+      new THREE.Vector3(NEXUS.x + side * 4, NEXUS.y + (lane - 1.5), NEXUS.z),
     ]);
-    var N = 300, sp = [], sc = [], ph = [];
+    var N = 280, sp = [], sc = [], ph = [];
     for (var i = 0; i < N; i++) {
-      var p0 = curve.getPoint(i / N);
+      var t1 = i / N;
+      var p0 = curve.getPoint(t1);
       sp.push(p0.x, p0.y, p0.z);
-      var mix = BLUE.clone().lerp(VIOLET, (i / N) * 0.85);
+      var mix = BLUE.clone().lerp(VIOLET, (1 - t1) * 0.7);
+      mix.lerp(new THREE.Color('#dff6ff'), Math.pow(t1, 3) * 0.8);
       sc.push(mix.r, mix.g, mix.b);
       ph.push(Math.random());
     }
@@ -293,6 +298,34 @@
     world.add(o);
     streamData.push({ obj: o, curve: curve, ph: ph, n: N });
   }
+  // Spine: the gathered energy pours from the nexus down into the board
+  var spineCurve = new THREE.CatmullRomCurve3([
+    NEXUS.clone(), new THREE.Vector3(0, 22, -1), new THREE.Vector3(0, 10, 1), new THREE.Vector3(0, 1.5, 0),
+  ]);
+  (function () {
+    var N = 200, sp = [], sc = [], ph = [];
+    for (var i = 0; i < N; i++) {
+      var p0 = spineCurve.getPoint(i / N);
+      sp.push(p0.x, p0.y, p0.z);
+      var mix = new THREE.Color('#dff6ff').lerp(GOLD, i / N * 0.75);
+      sc.push(mix.r, mix.g, mix.b);
+      ph.push(Math.random());
+    }
+    var o = pts(sp, sc, 1.9, 0.6);
+    world.add(o);
+    streamData.push({ obj: o, curve: spineCurve, ph: ph, n: N });
+  })();
+  // The nexus core itself: a small pulsing cluster
+  var nx = [], nc = [];
+  for (var q2 = 0; q2 < 220; q2++) {
+    var rr = Math.pow(Math.random(), 2) * 4.5;
+    var th2 = Math.random() * Math.PI * 2, ph2 = Math.acos(2 * Math.random() - 1);
+    nx.push(NEXUS.x + rr * Math.sin(ph2) * Math.cos(th2), NEXUS.y + rr * Math.cos(ph2), NEXUS.z + rr * Math.sin(ph2) * Math.sin(th2));
+    var cN = new THREE.Color('#eaf7ff').lerp(BLUE, Math.random() * 0.6);
+    nc.push(cN.r, cN.g, cN.b);
+  }
+  var nexusPts = pts(nx, nc, 2.6, 0.9);
+  world.add(nexusPts);
 
   // ---- Nebula dust shells ----
   var dp = [], dc = [];
@@ -317,7 +350,7 @@
   // ---- Camera stations: one per section — nav clicks & scroll fly you around ----
   var V = THREE.Vector3;
   var stations = [
-    { p: new V(10, 34, 110),  l: new V(0, -6, 0),  r: 0 },
+    { p: new V(0, 26, 122),   l: new V(0, 14, 0),  r: 0 },
     { p: new V(-34, 20, 84),  l: new V(6, -6, 0),  r: 0.05 },
     { p: new V(-88, 26, 30),  l: new V(0, -4, 0),  r: 0.09 },
     { p: new V(52, 10, 42),   l: new V(6, -2, -6), r: -0.08 },
@@ -334,13 +367,19 @@
   addEventListener('load', measure); measure();
 
   var camPos = stations[0].p.clone(), camLook = stations[0].l.clone();
-  var camRoll = 0, activeIdx = 0, flight = 0;
+  var camRoll = 0, activeIdx = 0, flight = 0, mTick = 0;
   var navLinks = [].slice.call(document.querySelectorAll('nav .links a'));
-  function activeStation(y) {
+  navLinks.forEach(function (a2) { a2.addEventListener('click', function () { flight = 1; measure(); }); });
+  addEventListener('scroll', function () { if ((mTick++ % 12) === 0) measure(); }, { passive: true });
+  function scrollTarget(y) {
     var mid = y + innerHeight * 0.42;
     var i2 = 0;
     while (i2 < anchors.length - 1 && mid >= anchors[i2 + 1]) i2++;
-    return i2;
+    var a0 = anchors[i2], a1 = anchors[i2 + 1] != null ? anchors[i2 + 1] : a0 + innerHeight;
+    var t = Math.min(1, Math.max(0, (mid - a0) / Math.max(1, a1 - a0)));
+    t = t * t * (3 - 2 * t);
+    var s0 = stations[i2], s1 = stations[Math.min(i2 + 1, stations.length - 1)];
+    return { i: i2, p: s0.p.clone().lerp(s1.p, t), l: s0.l.clone().lerp(s1.l, t), r: (s0.r || 0) * (1 - t) + (s1.r || 0) * t };
   }
   function markNav(i2) {
     var map = { 2: '#features', 3: '#trainer', 4: '#compliance', 5: '#pricing', 7: '#faq' };
@@ -370,6 +409,8 @@
     board.position.y = Math.sin(t0 * 0.7) * 1.4;
     goldPts.material.size = 2.6 + Math.sin(t0 * 2.4) * 0.9;
     goldPts.material.opacity = 0.7 + Math.sin(t0 * 2.4) * 0.3;
+    nexusPts.material.size = 2.6 + Math.sin(t0 * 3.1) * 1.1;
+    nexusPts.material.opacity = 0.75 + Math.sin(t0 * 3.1) * 0.25;
     lines.material.opacity = 0.42 + Math.sin(t0 * 1.1) * 0.12;
     streamData.forEach(function (sd, i2) {
       var attr = sd.obj.geometry.attributes.position;
@@ -383,14 +424,14 @@
       attr.needsUpdate = true;
       sd.obj.material.opacity = 0.5 + 0.3 * Math.sin(t0 * 1.2 + i2);
     });
-    var idx = activeStation(scrollY);
-    if (idx !== activeIdx) { activeIdx = idx; flight = 1; markNav(idx); }
-    flight = Math.max(0, flight - 0.016);
-    var ease = 0.05 + flight * 0.09;
-    var st = stations[activeIdx];
-    camPos.lerp(st.p, ease);
-    camLook.lerp(st.l, ease);
-    camRoll += ((st.r || 0) - camRoll) * ease;
+    var tgt = scrollTarget(scrollY);
+    if (tgt.i !== activeIdx) { activeIdx = tgt.i; markNav(activeIdx); }
+    window.__cmIdx = activeIdx;
+    flight = Math.max(0, flight - 0.014);
+    var ease = 0.075 + flight * 0.1; // scroll-synced glide, boosted right after a nav click
+    camPos.lerp(tgt.p, ease);
+    camLook.lerp(tgt.l, ease);
+    camRoll += (tgt.r - camRoll) * ease;
     camera.up.set(Math.sin(camRoll), Math.cos(camRoll), 0);
     camera.position.set(camPos.x + mouse.x * 6, camPos.y - mouse.y * 4, camPos.z);
     camera.lookAt(camLook);
