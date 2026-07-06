@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CompMaster — the compliance-first TFT companion overlay</title>
+<meta name="description" content="Pin a comp and your shop glows gold. Drill rolldowns like an aim trainer. Get coached after every match. A featherweight TFT overlay built compliance-first."/>
+<style>
+  :root { --bg:#0c0826; --bg2:#140f38; --card:#181245; --card2:#100b33; --line:#332a6b; --line2:#453a8a;
+          --ink:#eceafd; --dim:#a09ac8; --gold:#f0b232; --gold2:#ffd475; --blue:#31d8e8; --violet:#8b5cf6; --green:#2fce8f; --warn:#ff5c8a; }
+  * { box-sizing:border-box; margin:0; }
+  html { scroll-behavior:smooth; }
+  body { background:
+      radial-gradient(1100px 600px at 85% -5%, rgba(139,92,246,.22), transparent 60%),
+      radial-gradient(900px 520px at -5% 25%, rgba(49,216,232,.10), transparent 55%),
+      linear-gradient(160deg, #171049 0%, #0c0826 55%, #090617 100%);
+    color:var(--ink); font:15px/1.65 "Segoe UI", Roboto, sans-serif; overflow-x:hidden; }
+  .bgart { position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5; }
+  a { color:var(--gold2); text-decoration:none; }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 22px; }
+  nav { position:sticky; top:0; z-index:50; background:rgba(11,14,30,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+  nav .wrap { display:flex; align-items:center; gap:22px; height:62px; }
+  .wm { font:700 19px "Bahnschrift","Arial Narrow",sans-serif; letter-spacing:2px; display:flex; align-items:center; gap:10px; }
+  .wm b { color:var(--gold); }
+  nav .links { margin-left:auto; display:flex; gap:20px; font-size:13.5px; }
+  nav .links a { color:var(--dim); } nav .links a:hover { color:var(--gold2); }
+  .btn { display:inline-block; padding:10px 20px; border-radius:10px; border:1px solid var(--line2); color:var(--ink); font-weight:600; font-size:14px; }
+  .btn:hover { border-color:var(--gold); color:var(--gold2); }
+  .btn.gold { background:linear-gradient(180deg,#f6ca6a,#e3a01d); color:#241a05; border:0; box-shadow:0 4px 14px rgba(240,178,50,.35); }
+  .btn.gold:hover { filter:brightness(1.06); color:#241a05; }
+  .hero { padding:60px 0 30px; }
+  .hero .wrap { display:grid; grid-template-columns: .92fr 1.08fr; gap:20px; align-items:center; min-height:620px; }
+  #hero3d { width:100%; height:600px; display:block; }
+  .heroCanvasWrap { position:relative; }
+  .heroCanvasWrap::after { content:''; position:absolute; inset:auto 8% 6% 8%; height:60px;
+    background:radial-gradient(closest-side, rgba(139,92,246,.35), transparent 70%); filter:blur(14px); }
+  h1 { font:800 42px/1.15 "Bahnschrift","Segoe UI",sans-serif; letter-spacing:.5px; }
+  h1 span { color:var(--gold); }
+  .sub { color:var(--dim); margin:16px 0 26px; font-size:16.5px; max-width:52ch; }
+  .cta { display:flex; gap:12px; flex-wrap:wrap; }
+  .shot { border:1px solid var(--line); border-top:2px solid var(--gold); border-radius:16px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.55); background:#000; }
+  .shot img { display:block; width:100%; }
+  .micro { margin-top:12px; font-size:12px; color:#5a6488; }
+  section { padding:64px 0; border-top:1px solid rgba(44,51,88,.6); }
+  h2 { font:700 15px "Bahnschrift",sans-serif; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+  .lead { font-size:23px; font-weight:650; max-width:34ch; line-height:1.35; margin-bottom:28px; }
+  .grid3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+  .f { background:linear-gradient(180deg,var(--card),var(--card2)); border:1px solid var(--line2); border-radius:14px; padding:18px 20px; }
+  .f h3 { font-size:15.5px; margin-bottom:6px; color:var(--gold2); }
+  .f p { color:var(--dim); font-size:13.5px; }
+  .split { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; }
+  .tiers { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+  .tier { border-radius:14px; padding:18px 20px; background:var(--card2); border:1px solid var(--line2); }
+  .tier h3 { display:flex; align-items:center; gap:8px; font-size:15px; margin-bottom:8px; }
+  .dot { width:10px; height:10px; border-radius:50%; }
+  .tier.g { border-color:rgba(47,158,110,.5);} .tier.g .dot{background:var(--green);}
+  .tier.y { border-color:rgba(240,178,50,.55);} .tier.y .dot{background:var(--gold);}
+  .tier.r { border-color:rgba(232,80,107,.45);} .tier.r .dot{background:var(--warn);}
+  .tier p { color:var(--dim); font-size:13px; }
+  .rules { margin-top:22px; color:var(--dim); font-size:13.5px; }
+  .rules b { color:var(--ink); }
+  .price { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; max-width:760px; }
+  .p { background:linear-gradient(180deg,var(--card),var(--card2)); border:1px solid var(--line2); border-radius:16px; padding:24px; }
+  .p.hot { border-color:var(--gold); box-shadow:0 0 28px rgba(240,178,50,.12); }
+  .p h3 { font-size:18px; } .p .amt { font:800 30px "Bahnschrift",sans-serif; margin:8px 0 4px; }
+  .p ul { margin:14px 0 0 18px; color:var(--dim); font-size:13.5px; line-height:2; }
+  .dl { background:var(--card2); border:1px solid var(--line2); border-radius:16px; padding:26px; max-width:720px; }
+  .dl ul { margin:12px 0 0 18px; color:var(--dim); font-size:13.5px; line-height:1.9; }
+  details { border:1px solid var(--line2); border-radius:12px; padding:14px 18px; margin-bottom:10px; background:var(--card2); }
+  summary { cursor:pointer; font-weight:600; }
+  details p { color:var(--dim); font-size:13.5px; margin-top:8px; }
+  footer { padding:38px 0 46px; border-top:1px solid var(--line); color:#5a6488; font-size:11.5px; line-height:1.7; }
+  @media (max-width:860px){ .hero .wrap,.split{grid-template-columns:1fr;} h1{font-size:32px;} }
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <div class="wm"><img src="assets/logo.svg" width="30" height="30" alt=""/>COMP<b>MASTER</b></div>
+  <div class="links">
+    <a href="#features">Features</a><a href="#trainer">Trainer</a><a href="#compliance">Compliance</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a>
+  </div>
+  <a class="btn" href="#download">Download beta</a>
+</div></nav>
+
+<div class="hero"><div class="wrap">
+  <div>
+    <h1>Your plan, <span>lit up</span> on the board.</h1>
+    <p class="sub">CompMaster is a featherweight TFT companion. Pin a comp and your shop glows gold. Drill rolldowns like an aim trainer. Get coached after every match — all built <b>compliance-first</b> from day one.</p>
+    <div class="cta">
+      <a class="btn gold" href="#download">Download the beta</a>
+      <a class="btn" href="#compliance">How we stay inside the rules</a>
+    </div>
+    <div class="micro">Windows 10/11 · Borderless mode · No memory reading, no injection, ever.</div>
+  </div>
+  <div class="heroCanvasWrap"><canvas id="hero3d" aria-hidden="true"></canvas></div>
+</div></div>
+
+<section style="padding-top:0"><div class="wrap">
+  <div class="shot"><img src="assets/preview-rail.png" alt="CompMaster icon rail over TFT" loading="lazy"/></div>
+  <div class="micro" style="text-align:center;margin-top:10px">Live in-game: the icon rail, plan card, recommend windows and shop glow.</div>
+</div></section>
+
+<section id="features"><div class="wrap">
+  <h2>Features</h2>
+  <div class="lead">Everything you need, nothing screaming for attention.</div>
+  <div class="grid3">
+    <div class="f"><h3>Icon rail</h3><p>Nine hand-drawn icons in one quiet gold pill. Hover for fade-in labels, click for a card — one at a time, never stacking. Every window drags; your layout persists.</p></div>
+    <div class="f"><h3>Shop glow</h3><p>Pin a comp and its units pulse with a gold ring directly on your shop cards — the Team-Planner glow, for any comp you choose.</p></div>
+    <div class="f"><h3>Plan card</h3><p>Your pinned comp as a living checklist: early board, late board, one-tap pivots — and recommended items per unit from real pick-rate data.</p></div>
+    <div class="f"><h3>Choice &amp; augment assist</h3><p>At augment and God picks, cards appear under the offers: your tier notes, and a gold "Fits your comp" when a choice matches your plan.</p></div>
+    <div class="f"><h3>Post-game coach</h3><p>Placement and econ grades, highlights, augment tendencies — refreshed automatically when your match ends. Plus a lobby board for scouting by name.</p></div>
+    <div class="f"><h3>Item dock</h3><p>All ten components, every recipe, all emblems. Tap one for its builds, two for the exact craft, hover for details — verified against live set data.</p></div>
+  </div>
+</div></section>
+
+<section id="trainer"><div class="wrap split">
+  <div>
+    <h2>The Trainer</h2>
+    <div class="lead">Aim Lab for rolldowns.</div>
+    <p class="sub">Set a level, a target unit and a gold budget — then roll a simulated shop with the real odds and the real bag sizes. When you stop, CompMaster grades your rolldown against the median and 80% expected cost. Ten drills between queues and your fingers stop hesitating at 4-1.</p>
+    <p class="sub" style="margin-top:-10px">No other TFT tool has this. It runs fully offline — no game client needed.</p>
+  </div>
+  <div class="shot"><img src="assets/preview-sim.png" alt="Rolldown Trainer"/></div>
+</div></section>
+
+<section id="compliance"><div class="wrap">
+  <h2>Compliance</h2>
+  <div class="lead">Designed around Riot's third-party policy — not against it.</div>
+  <div class="tiers">
+    <div class="tier g"><h3><span class="dot"></span>Static · always on</h3><p>Odds tables, bag sizes, comps, items, positioning maps, the Trainer, the post-game coach. Reference material and player-chosen plans — explicitly fine to show all game.</p></div>
+    <div class="tier y"><h3><span class="dot"></span>Contextual · market practice</h3><p>Shop glow on your pinned comp, augment tier notes at offer time, purchase-inferred board tracking. The same class of assist shipped by registered tools today; scope to be confirmed at our Riot registration.</p></div>
+    <div class="tier r"><h3><span class="dot"></span>Full assist · gated</h3><p>Live pool odds, scored buy/sell advice, board-scanned recommendations. Built and tested in the Trainer — shipped in-game only if and when Riot approves it. Off by default, no exceptions.</p></div>
+  </div>
+  <p class="rules"><b>Hard rules:</b> no memory reading · no code injection · no input automation · screen reading only · ads never appear in-game (Riot policy, May 2025) · Riot third-party product registration: <b>application in progress</b>.</p>
+</div></section>
+
+<section id="pricing"><div class="wrap">
+  <h2>Pricing</h2>
+  <div class="lead">Free forever. Premium adds depth.</div>
+  <div class="price">
+    <div class="p"><h3>Free</h3><div class="amt">$0</div>
+      <ul><li>The full overlay &amp; every widget</li><li>Rolldown Trainer</li><li>Post-game coach</li><li>2 hunt targets · 3 lobby scout slots</li></ul></div>
+    <div class="p hot"><h3>Premium</h3><div class="amt">TBA <span style="font-size:13px;color:var(--dim)">at launch</span></div>
+      <ul><li>Unlimited hunt targets</li><li>Full-lobby scouting · 10-game depth</li><li>Session insight export</li><li>Support one independent developer</li></ul></div>
+  </div>
+</div></section>
+
+<section id="download"><div class="wrap">
+  <h2>Download</h2>
+  <div class="lead">Private beta.</div>
+  <div class="dl">
+    <p class="sub" style="margin:0">CompMaster is in closed beta while our Riot registration is in progress. Builds ship via GitHub Releases to testers.</p>
+    <ul>
+      <li>Windows 10/11 · TFT in <b>Borderless</b> mode</li>
+      <li>Beta builds are unsigned — a signed installer ships at launch</li>
+      <li>Optional free Riot API key unlocks the coach &amp; lobby board (2-minute setup)</li>
+      <li>Want in? <a href="#faq">Read the FAQ</a>, then reach out.</li>
+    </ul>
+  </div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <h2>FAQ</h2>
+  <div class="lead">Straight answers.</div>
+  <details><summary>Is this allowed by Riot?</summary><p>CompMaster is built to sit inside Riot's third-party policy: everything shown in-game is either static reference or player-chosen plans surfaced contextually, matching what registered tools ship today. Our product registration with Riot is in progress; the full live-assist tier stays disabled until it's approved.</p></details>
+  <details><summary>Can using it get me banned?</summary><p>Honest answer: until registration completes, any unknown unsigned overlay carries non-zero risk with automated anti-cheat — that's true of every indie tool at this stage. CompMaster never reads memory, injects code, or automates input, and we recommend testing against VODs or the mobile-mirror workflow rather than ranked play until our registration is confirmed. We will always tell you exactly where this stands.</p></details>
+  <details><summary>Does it read the game's memory?</summary><p>No. CompMaster only reads pixels from your screen — the same technique OBS uses — plus Riot's public web API for post-game data, with your own key.</p></details>
+  <details><summary>How does it stay current each patch?</summary><p>Set data (units, items, emblems, augment names) loads live from Community Dragon at every start. Comps, augment notes and item stats are editable files — updated each patch, with a one-command crawler for real pick-rate percentages.</p></details>
+</div></section>
+
+<footer><div class="wrap">
+  CompMaster isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and Teamfight Tactics are trademarks or registered trademarks of Riot Games, Inc.<br/>
+  Built independently in Sweden · © 2026 CompMaster
+</div></footer>
+
+<svg class="bgart" width="100%" height="100%" preserveAspectRatio="none">
+  <g stroke="#6d5cd8" stroke-width="1.5" fill="none" opacity=".35">
+    <circle cx="8%" cy="12%" r="180"/><circle cx="8%" cy="12%" r="230"/><circle cx="8%" cy="12%" r="285" stroke-dasharray="60 40"/>
+    <circle cx="96%" cy="88%" r="200" stroke="#31d8e8"/><circle cx="96%" cy="88%" r="260" stroke-dasharray="90 50"/>
+  </g>
+</svg>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  var canvas = document.getElementById('hero3d');
+  if (!canvas || !window.THREE) return;
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true }); }
+  catch (e) { canvas.style.display = 'none'; return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 400);
+  camera.position.set(0, 12, 74);
+
+  // Soft round sprite for glowing points
+  var c2 = document.createElement('canvas'); c2.width = c2.height = 64;
+  var g = c2.getContext('2d');
+  var grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.35, 'rgba(255,255,255,.85)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
+  var sprite = new THREE.CanvasTexture(c2);
+
+  var GOLD = new THREE.Color('#f0b232');
+  var BLUE = new THREE.Color('#31d8e8');
+  var VIOLET = new THREE.Color('#8b5cf6');
+
+  function makePoints(positions, colors, size) {
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    var mat = new THREE.PointsMaterial({
+      size: size, map: sprite, vertexColors: true, transparent: true,
+      opacity: 0.95, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+    return new THREE.Points(geo, mat);
+  }
+
+  // --- The hex board: 4 x 7, TFT's shape, edges drawn in particles ---
+  var board = new THREE.Group();
+  var HEX = 5.2, EDGE_PTS = 9;
+  var goldHexes = [[0, 3], [1, 1], [1, 5], [2, 2], [3, 4]]; // "pinned comp" glow
+  var pos = [], col = [], gpos = [], gcol = [];
+  function hexCenter(r, q) {
+    var x = (q - 3) * HEX * 1.74 + (r % 2 ? HEX * 0.87 : 0);
+    var z = (r - 1.5) * HEX * 1.5;
+    return [x, 0, z];
+  }
+  for (var r = 0; r < 4; r++) {
+    for (var q = 0; q < 7; q++) {
+      var cxyz = hexCenter(r, q);
+      var isGold = goldHexes.some(function (h) { return h[0] === r && h[1] === q; });
+      for (var e = 0; e < 6; e++) {
+        var a1 = Math.PI / 3 * e + Math.PI / 6, a2 = Math.PI / 3 * (e + 1) + Math.PI / 6;
+        for (var k = 0; k < EDGE_PTS; k++) {
+          var t = k / EDGE_PTS;
+          var x = cxyz[0] + Math.cos(a1) * HEX * (1 - t) + Math.cos(a2) * HEX * t;
+          var z = cxyz[2] + Math.sin(a1) * HEX * (1 - t) + Math.sin(a2) * HEX * t;
+          var cc = isGold ? GOLD : (Math.random() < 0.5 ? BLUE : VIOLET);
+          (isGold ? gpos : pos).push(x, 0, z);
+          (isGold ? gcol : gcol && isGold ? gcol : col).push(cc.r, cc.g, cc.b);
+          if (isGold) {} else {}
+        }
+      }
+    }
+  }
+  var boardPts = makePoints(pos, col, 1.5);
+  var goldPts = makePoints(gpos, gcol, 2.4);
+  board.add(boardPts); board.add(goldPts);
+  board.rotation.x = -0.62;
+  board.position.set(9, -4, 0);
+  scene.add(board);
+
+  // --- Streams: particle currents flowing into the board (the "hair") ---
+  var streams = new THREE.Group();
+  var streamData = [];
+  for (var sIdx = 0; sIdx < 6; sIdx++) {
+    var yy = 16 - sIdx * 6 + Math.random() * 2;
+    var curve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-95, yy + 8, -10 + sIdx * 3),
+      new THREE.Vector3(-60, yy + Math.sin(sIdx) * 6, 6),
+      new THREE.Vector3(-30, yy * 0.5, -2),
+      new THREE.Vector3(-4, -2 + sIdx * 0.6, 2),
+    ]);
+    var N = 240, sp = [], sc = [], phase = [];
+    for (var i = 0; i < N; i++) {
+      var t2 = i / N;
+      var p = curve.getPoint(t2);
+      sp.push(p.x, p.y + (Math.random() - 0.5) * 1.6, p.z + (Math.random() - 0.5) * 1.6);
+      var mix = BLUE.clone().lerp(VIOLET, t2 * 0.8 + Math.random() * 0.2);
+      sc.push(mix.r, mix.g, mix.b);
+      phase.push(Math.random());
+    }
+    var ptsObj = makePoints(sp, sc, 1.7);
+    streams.add(ptsObj);
+    streamData.push({ obj: ptsObj, curve: curve, phase: phase, n: N });
+  }
+  scene.add(streams);
+
+  // --- Ambient dust ---
+  var dp = [], dc = [];
+  for (var d = 0; d < 500; d++) {
+    dp.push((Math.random() - 0.5) * 190, (Math.random() - 0.5) * 110, (Math.random() - 0.5) * 60 - 10);
+    var cc2 = Math.random() < 0.12 ? GOLD : VIOLET;
+    dc.push(cc2.r * 0.7, cc2.g * 0.7, cc2.b * 0.7);
+  }
+  scene.add(makePoints(dp, dc, 1.1));
+
+  var mouse = { x: 0, y: 0 };
+  addEventListener('mousemove', function (e) {
+    mouse.x = (e.clientX / innerWidth - 0.5);
+    mouse.y = (e.clientY / innerHeight - 0.5);
+  });
+
+  function resize() {
+    var w = canvas.clientWidth || canvas.parentElement.clientWidth;
+    var h = canvas.clientHeight || 600;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  addEventListener('resize', resize);
+  resize();
+
+  var t0 = 0;
+  function frame(t) {
+    t0 = t * 0.001;
+    board.rotation.z = Math.sin(t0 * 0.25) * 0.05;
+    board.position.y = -4 + Math.sin(t0 * 0.7) * 1.1;
+    goldPts.material.size = 2.4 + Math.sin(t0 * 2.2) * 0.7;
+    goldPts.material.opacity = 0.75 + Math.sin(t0 * 2.2) * 0.25;
+    streamData.forEach(function (sd, i2) {
+      var attr = sd.obj.geometry.attributes.position;
+      for (var k2 = 0; k2 < sd.n; k2++) {
+        var prog = (k2 / sd.n + t0 * 0.055 + sd.phase[k2] * 0.02) % 1;
+        var p2 = sd.curve.getPoint(prog);
+        attr.array[k2 * 3] = p2.x;
+        attr.array[k2 * 3 + 1] = p2.y + Math.sin(t0 * 2 + k2) * 0.5;
+        attr.array[k2 * 3 + 2] = p2.z + Math.cos(t0 * 1.4 + k2 * 0.6) * 0.5;
+      }
+      attr.needsUpdate = true;
+      sd.obj.material.opacity = 0.55 + 0.25 * Math.sin(t0 * 1.3 + i2);
+    });
+    camera.position.x += ((mouse.x * 10) - camera.position.x) * 0.04;
+    camera.position.y += ((12 - mouse.y * 8) - camera.position.y) * 0.04;
+    camera.lookAt(4, -2, 0);
+    renderer.render(scene, camera);
+    if (!reduced) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

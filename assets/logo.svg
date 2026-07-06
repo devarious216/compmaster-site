@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="200" viewBox="0 0 880 200">
+  <!-- CompMaster lockup: mark + wordmark on a dark panel -->
+  <rect x="0" y="0" width="880" height="200" rx="26" fill="#0c1022"/>
+  <g transform="translate(28,26) scale(0.58)">
+    <path d="M128 22 L217 74 V182 L128 234 L39 182 V74 Z"
+          fill="#0e1226" stroke="#f0b232" stroke-width="11" stroke-linejoin="round"/>
+    <rect x="53"  y="113" width="28" height="30" rx="6" fill="#f0b232"/>
+    <rect x="88"  y="113" width="28" height="30" rx="6" fill="#f0b232"/>
+    <rect x="123" y="113" width="28" height="30" rx="6" fill="#3d95ec"/>
+    <rect x="158" y="113" width="28" height="30" rx="6" fill="#3d95ec"/>
+    <rect x="193" y="113" width="28" height="30" rx="6" fill="none" stroke="#5a6ac0" stroke-width="4"/>
+  </g>
+  <text x="208" y="112" font-family="Bahnschrift, 'Arial Narrow', 'DejaVu Sans Condensed', sans-serif"
+        font-size="74" font-weight="700" letter-spacing="4">
+    <tspan fill="#e8ecf6">COMP</tspan><tspan fill="#f0b232">MASTER</tspan>
+  </text>
+  <text x="212" y="152" font-family="'Segoe UI', 'DejaVu Sans', sans-serif"
+        font-size="19" letter-spacing="1.5" fill="#97a0b8">Comp trainer &amp; reference overlay</text>
+</svg>
