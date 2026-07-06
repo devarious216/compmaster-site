@@ -279,9 +279,9 @@
     var lane = sI % 4;
     var yy = 30 - lane * 7;
     var curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(side * 135, yy + 8, -24 + lane * 8),
-      new THREE.Vector3(side * 84, yy + Math.sin(sI * 1.7) * 7, 12 - lane * 4),
-      new THREE.Vector3(side * 38, (yy + NEXUS.y) * 0.5, NEXUS.z + 6),
+      new THREE.Vector3(side * 92, yy + 8, -24 + lane * 8),
+      new THREE.Vector3(side * 62, yy + Math.sin(sI * 1.7) * 7, 12 - lane * 4),
+      new THREE.Vector3(side * 30, (yy + NEXUS.y) * 0.5, NEXUS.z + 6),
       new THREE.Vector3(NEXUS.x + side * 4, NEXUS.y + (lane - 1.5), NEXUS.z),
     ]);
     var N = 280, sp = [], sc = [], ph = [];
@@ -330,7 +330,7 @@
   // ---- Nebula dust shells ----
   var dp = [], dc = [];
   for (var d = 0; d < 2400; d++) {
-    var R = 55 + Math.random() * 150;
+    var R = 85 + Math.random() * 130;
     var th = Math.random() * Math.PI * 2, phi = Math.acos(2 * Math.random() - 1);
     dp.push(R * Math.sin(phi) * Math.cos(th), R * Math.cos(phi) * 0.6, R * Math.sin(phi) * Math.sin(th));
     var cc3 = Math.random() < 0.1 ? GOLD : (Math.random() < 0.5 ? VIOLET : BLUE);
@@ -351,13 +351,13 @@
   var V = THREE.Vector3;
   var stations = [
     { p: new V(0, 26, 122),   l: new V(0, 14, 0), r: 0 },     // hero: front, nexus crowned
-    { p: new V(-43, 20, 88),  l: new V(0, 6, 0),  r: 0.03 },  // drift left begins
-    { p: new V(-75, 22, 43),  l: new V(0, 2, 0),  r: 0.05 },  // features: left flank
-    { p: new V(-58, 11, -21), l: new V(6, 0, -4), r: -0.05 }, // trainer: low pass, back-left
-    { p: new V(0, 112, -26),  l: new V(0, 0, 0),  r: 0 },     // compliance: crane up, bird's eye
-    { p: new V(62, 17, -36),  l: new V(0, 0, 0),  r: 0.04 },  // pricing: descend, back-right
-    { p: new V(83, 26, 48),   l: new V(0, 2, 0),  r: -0.03 }, // download: right flank
-    { p: new V(0, 42, 158),   l: new V(0, 6, 0),  r: 0 },     // faq: full circle, receded
+    { p: new V(-79, 28, 79),  l: new V(0, 8, 0),  r: 0.02 },  // drift out on the left
+    { p: new V(-110, 32, -4), l: new V(0, 4, 0),  r: 0.03 },  // features: wide left flank
+    { p: new V(-76, 42, -84), l: new V(2, 2, -2), r: -0.02 }, // trainer: high back-left sweep
+    { p: new V(0, 94, -52),   l: new V(0, 0, 0),  r: 0 },     // compliance: soft crane, high behind
+    { p: new V(82, 44, -80),  l: new V(0, 2, 0),  r: 0.02 },  // pricing: descend back-right
+    { p: new V(108, 32, 46),  l: new V(0, 4, 0),  r: -0.02 }, // download: wide right flank
+    { p: new V(0, 40, 150),   l: new V(0, 8, 0),  r: 0 },     // faq: full circle, receded
   ];
   var camPath = new THREE.CatmullRomCurve3(stations.map(function (s2) { return s2.p; }));
   var lookPath = new THREE.CatmullRomCurve3(stations.map(function (s2) { return s2.l; }));
@@ -368,8 +368,7 @@
   }
   addEventListener('load', measure); measure();
 
-  var camPos = stations[0].p.clone(), camLook = stations[0].l.clone();
-  var camRoll = 0, activeIdx = 0, flight = 0, mTick = 0;
+  var uS = 0, camRoll = 0, activeIdx = 0, flight = 0, mTick = 0;
   var navLinks = [].slice.call(document.querySelectorAll('nav .links a'));
   navLinks.forEach(function (a2) { a2.addEventListener('click', function () { flight = 1; measure(); }); });
   addEventListener('scroll', function () { if ((mTick++ % 12) === 0) measure(); }, { passive: true });
@@ -382,7 +381,7 @@
     t = t * t * (3 - 2 * t);
     var u = (i2 + t) / (stations.length - 1);
     var r0 = stations[i2].r || 0, r1 = stations[Math.min(i2 + 1, stations.length - 1)].r || 0;
-    return { i: i2, p: camPath.getPoint(u), l: lookPath.getPoint(u), r: r0 * (1 - t) + r1 * t };
+    return { i: i2, u: u, r: r0 * (1 - t) + r1 * t };
   }
   function markNav(i2) {
     var map = { 2: '#features', 3: '#trainer', 4: '#compliance', 5: '#pricing', 7: '#faq' };
@@ -430,15 +429,16 @@
     var tgt = scrollTarget(scrollY);
     if (tgt.i !== activeIdx) { activeIdx = tgt.i; markNav(activeIdx); }
     window.__cmIdx = activeIdx;
-    window.__cmCam = [camera.position.x, camera.position.y, camera.position.z];
     flight = Math.max(0, flight - 0.014);
-    var ease = 0.075 + flight * 0.1; // scroll-synced glide, boosted right after a nav click
-    camPos.lerp(tgt.p, ease);
-    camLook.lerp(tgt.l, ease);
-    camRoll += (tgt.r - camRoll) * ease;
+    var uEase = 0.055 + flight * 0.075;
+    uS += (tgt.u - uS) * uEase; // ALL smoothing in one scalar — the camera is bolted to the path
+    var pp = camPath.getPoint(uS);
+    var ll = lookPath.getPoint(uS);
+    camRoll += (tgt.r - camRoll) * uEase;
     camera.up.set(Math.sin(camRoll), Math.cos(camRoll), 0);
-    camera.position.set(camPos.x + mouse.x * 6, camPos.y - mouse.y * 4, camPos.z);
-    camera.lookAt(camLook);
+    camera.position.set(pp.x + mouse.x * 3, pp.y - mouse.y * 2, pp.z);
+    camera.lookAt(ll);
+    window.__cmCam = [camera.position.x, camera.position.y, camera.position.z];
     if (composer) composer.render(); else renderer.render(scene, camera);
     if (!reduced) requestAnimationFrame(frame);
   }
