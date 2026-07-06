@@ -6,74 +6,71 @@
 <title>CompMaster — the compliance-first TFT companion overlay</title>
 <meta name="description" content="Pin a comp and your shop glows gold. Drill rolldowns like an aim trainer. Get coached after every match. A featherweight TFT overlay built compliance-first."/>
 <style>
-  :root { --bg:#0c0826; --bg2:#140f38; --card:#181245; --card2:#100b33; --line:#332a6b; --line2:#453a8a;
-          --ink:#eceafd; --dim:#a09ac8; --gold:#f0b232; --gold2:#ffd475; --blue:#31d8e8; --violet:#8b5cf6; --green:#2fce8f; --warn:#ff5c8a; }
+  :root { --bg:#0a0722; --card:rgba(24,18,69,.55); --card2:rgba(16,11,51,.55); --line:#332a6b; --line2:#4b3f96;
+          --ink:#eceafd; --dim:#a8a2cf; --gold:#f0b232; --gold2:#ffd475; --blue:#31d8e8; --violet:#8b5cf6; --green:#2fce8f; --warn:#ff5c8a; }
   * { box-sizing:border-box; margin:0; }
   html { scroll-behavior:smooth; }
-  body { background:
-      radial-gradient(1100px 600px at 85% -5%, rgba(139,92,246,.22), transparent 60%),
-      radial-gradient(900px 520px at -5% 25%, rgba(49,216,232,.10), transparent 55%),
-      linear-gradient(160deg, #171049 0%, #0c0826 55%, #090617 100%);
-    color:var(--ink); font:15px/1.65 "Segoe UI", Roboto, sans-serif; overflow-x:hidden; }
-  .bgart { position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5; }
+  body { background:#0a0722; color:var(--ink); font:15px/1.65 "Segoe UI", Roboto, sans-serif; overflow-x:hidden; }
+  #stage { position:fixed; inset:0; z-index:0; display:block; }
+  .content { position:relative; z-index:1; }
   a { color:var(--gold2); text-decoration:none; }
   .wrap { max-width:1080px; margin:0 auto; padding:0 22px; }
-  nav { position:sticky; top:0; z-index:50; background:rgba(11,14,30,.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+  nav { position:sticky; top:0; z-index:50; background:rgba(10,7,34,.66); backdrop-filter:blur(12px); border-bottom:1px solid rgba(51,42,107,.7); }
   nav .wrap { display:flex; align-items:center; gap:22px; height:62px; }
   .wm { font:700 19px "Bahnschrift","Arial Narrow",sans-serif; letter-spacing:2px; display:flex; align-items:center; gap:10px; }
   .wm b { color:var(--gold); }
   nav .links { margin-left:auto; display:flex; gap:20px; font-size:13.5px; }
   nav .links a { color:var(--dim); } nav .links a:hover { color:var(--gold2); }
-  .btn { display:inline-block; padding:10px 20px; border-radius:10px; border:1px solid var(--line2); color:var(--ink); font-weight:600; font-size:14px; }
+  .btn { display:inline-block; padding:10px 20px; border-radius:10px; border:1px solid var(--line2); color:var(--ink); font-weight:600; font-size:14px; background:rgba(16,11,51,.5); backdrop-filter:blur(6px); }
   .btn:hover { border-color:var(--gold); color:var(--gold2); }
-  .btn.gold { background:linear-gradient(180deg,#f6ca6a,#e3a01d); color:#241a05; border:0; box-shadow:0 4px 14px rgba(240,178,50,.35); }
+  .btn.gold { background:linear-gradient(180deg,#f6ca6a,#e3a01d); color:#241a05; border:0; box-shadow:0 4px 18px rgba(240,178,50,.45); }
   .btn.gold:hover { filter:brightness(1.06); color:#241a05; }
-  .hero { padding:60px 0 30px; }
-  .hero .wrap { display:grid; grid-template-columns: .92fr 1.08fr; gap:20px; align-items:center; min-height:620px; }
-  #hero3d { width:100%; height:600px; display:block; }
-  .heroCanvasWrap { position:relative; }
-  .heroCanvasWrap::after { content:''; position:absolute; inset:auto 8% 6% 8%; height:60px;
-    background:radial-gradient(closest-side, rgba(139,92,246,.35), transparent 70%); filter:blur(14px); }
-  h1 { font:800 42px/1.15 "Bahnschrift","Segoe UI",sans-serif; letter-spacing:.5px; }
+  .hero { padding:70px 0 20px; }
+  .hero .wrap { display:grid; grid-template-columns: .95fr 1.05fr; gap:20px; align-items:center; min-height:78vh; }
+  .heroSpace { min-height:1px; }
+  h1 { font:800 46px/1.12 "Bahnschrift","Segoe UI",sans-serif; letter-spacing:.5px; text-shadow:0 2px 30px rgba(10,7,34,.9); }
   h1 span { color:var(--gold); }
-  .sub { color:var(--dim); margin:16px 0 26px; font-size:16.5px; max-width:52ch; }
+  .sub { color:var(--dim); margin:16px 0 26px; font-size:16.5px; max-width:50ch; text-shadow:0 1px 18px rgba(10,7,34,.95); }
   .cta { display:flex; gap:12px; flex-wrap:wrap; }
-  .shot { border:1px solid var(--line); border-top:2px solid var(--gold); border-radius:16px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.55); background:#000; }
+  .shot { border:1px solid var(--line2); border-top:2px solid var(--gold); border-radius:16px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.6); background:#000; }
   .shot img { display:block; width:100%; }
-  .micro { margin-top:12px; font-size:12px; color:#5a6488; }
-  section { padding:64px 0; border-top:1px solid rgba(44,51,88,.6); }
+  .micro { margin-top:12px; font-size:12px; color:#7e77ab; }
+  section { padding:78px 0; }
   h2 { font:700 15px "Bahnschrift",sans-serif; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
-  .lead { font-size:23px; font-weight:650; max-width:34ch; line-height:1.35; margin-bottom:28px; }
+  .lead { font-size:24px; font-weight:650; max-width:34ch; line-height:1.35; margin-bottom:28px; text-shadow:0 2px 24px rgba(10,7,34,.9); }
   .grid3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
-  .f { background:linear-gradient(180deg,var(--card),var(--card2)); border:1px solid var(--line2); border-radius:14px; padding:18px 20px; }
+  .f, .tier, .p, .dl, details { background:linear-gradient(180deg,var(--card),var(--card2)); border:1px solid var(--line2); border-radius:15px; backdrop-filter:blur(10px); box-shadow:0 14px 40px rgba(0,0,0,.35); }
+  .f { padding:18px 20px; }
   .f h3 { font-size:15.5px; margin-bottom:6px; color:var(--gold2); }
   .f p { color:var(--dim); font-size:13.5px; }
   .split { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center; }
   .tiers { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
-  .tier { border-radius:14px; padding:18px 20px; background:var(--card2); border:1px solid var(--line2); }
+  .tier { padding:18px 20px; }
   .tier h3 { display:flex; align-items:center; gap:8px; font-size:15px; margin-bottom:8px; }
-  .dot { width:10px; height:10px; border-radius:50%; }
-  .tier.g { border-color:rgba(47,158,110,.5);} .tier.g .dot{background:var(--green);}
-  .tier.y { border-color:rgba(240,178,50,.55);} .tier.y .dot{background:var(--gold);}
-  .tier.r { border-color:rgba(232,80,107,.45);} .tier.r .dot{background:var(--warn);}
+  .dot { width:10px; height:10px; border-radius:50%; box-shadow:0 0 10px currentColor; }
+  .tier.g { border-color:rgba(47,206,143,.55);} .tier.g .dot{background:var(--green); color:var(--green);}
+  .tier.y { border-color:rgba(240,178,50,.6);} .tier.y .dot{background:var(--gold); color:var(--gold);}
+  .tier.r { border-color:rgba(255,92,138,.5);} .tier.r .dot{background:var(--warn); color:var(--warn);}
   .tier p { color:var(--dim); font-size:13px; }
   .rules { margin-top:22px; color:var(--dim); font-size:13.5px; }
   .rules b { color:var(--ink); }
   .price { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; max-width:760px; }
-  .p { background:linear-gradient(180deg,var(--card),var(--card2)); border:1px solid var(--line2); border-radius:16px; padding:24px; }
-  .p.hot { border-color:var(--gold); box-shadow:0 0 28px rgba(240,178,50,.12); }
+  .p { padding:24px; }
+  .p.hot { border-color:var(--gold); box-shadow:0 0 34px rgba(240,178,50,.18), 0 14px 40px rgba(0,0,0,.35); }
   .p h3 { font-size:18px; } .p .amt { font:800 30px "Bahnschrift",sans-serif; margin:8px 0 4px; }
   .p ul { margin:14px 0 0 18px; color:var(--dim); font-size:13.5px; line-height:2; }
-  .dl { background:var(--card2); border:1px solid var(--line2); border-radius:16px; padding:26px; max-width:720px; }
+  .dl { padding:26px; max-width:720px; }
   .dl ul { margin:12px 0 0 18px; color:var(--dim); font-size:13.5px; line-height:1.9; }
-  details { border:1px solid var(--line2); border-radius:12px; padding:14px 18px; margin-bottom:10px; background:var(--card2); }
+  details { padding:14px 18px; margin-bottom:10px; }
   summary { cursor:pointer; font-weight:600; }
   details p { color:var(--dim); font-size:13.5px; margin-top:8px; }
-  footer { padding:38px 0 46px; border-top:1px solid var(--line); color:#5a6488; font-size:11.5px; line-height:1.7; }
-  @media (max-width:860px){ .hero .wrap,.split{grid-template-columns:1fr;} h1{font-size:32px;} }
+  footer { padding:38px 0 46px; border-top:1px solid rgba(51,42,107,.6); color:#7e77ab; font-size:11.5px; line-height:1.7; background:rgba(10,7,34,.6); backdrop-filter:blur(8px); }
+  @media (max-width:860px){ .hero .wrap,.split{grid-template-columns:1fr;} h1{font-size:34px;} .hero .wrap{min-height:60vh;} }
 </style>
 </head>
 <body>
+<canvas id="stage" aria-hidden="true"></canvas>
+<div class="content">
 <nav><div class="wrap">
   <div class="wm"><img src="assets/logo.svg" width="30" height="30" alt=""/>COMP<b>MASTER</b></div>
   <div class="links">
@@ -92,7 +89,7 @@
     </div>
     <div class="micro">Windows 10/11 · Borderless mode · No memory reading, no injection, ever.</div>
   </div>
-  <div class="heroCanvasWrap"><canvas id="hero3d" aria-hidden="true"></canvas></div>
+  <div class="heroSpace" aria-hidden="true"></div>
 </div></div>
 
 <section style="padding-top:0"><div class="wrap">
@@ -173,33 +170,35 @@
   Built independently in Sweden · © 2026 CompMaster
 </div></footer>
 
-<svg class="bgart" width="100%" height="100%" preserveAspectRatio="none">
-  <g stroke="#6d5cd8" stroke-width="1.5" fill="none" opacity=".35">
-    <circle cx="8%" cy="12%" r="180"/><circle cx="8%" cy="12%" r="230"/><circle cx="8%" cy="12%" r="285" stroke-dasharray="60 40"/>
-    <circle cx="96%" cy="88%" r="200" stroke="#31d8e8"/><circle cx="96%" cy="88%" r="260" stroke-dasharray="90 50"/>
-  </g>
-</svg>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 (function () {
-  var canvas = document.getElementById('hero3d');
+  var canvas = document.getElementById('stage');
   if (!canvas || !window.THREE) return;
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true }); }
+  try { renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: false, antialias: true }); }
   catch (e) { canvas.style.display = 'none'; return; }
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setClearColor(0x0a0722, 1);
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
 
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 400);
-  camera.position.set(0, 12, 74);
+  scene.fog = new THREE.FogExp2(0x0a0722, 0.0075);
+  var camera = new THREE.PerspectiveCamera(50, 2, 0.1, 600);
 
-  // Soft round sprite for glowing points
   var c2 = document.createElement('canvas'); c2.width = c2.height = 64;
   var g = c2.getContext('2d');
   var grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
   grad.addColorStop(0, 'rgba(255,255,255,1)');
-  grad.addColorStop(0.35, 'rgba(255,255,255,.85)');
+  grad.addColorStop(0.3, 'rgba(255,255,255,.9)');
   grad.addColorStop(1, 'rgba(255,255,255,0)');
   g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
   var sprite = new THREE.CanvasTexture(c2);
@@ -208,99 +207,146 @@
   var BLUE = new THREE.Color('#31d8e8');
   var VIOLET = new THREE.Color('#8b5cf6');
 
-  function makePoints(positions, colors, size) {
+  function pts(positions, colors, size, opacity) {
     var geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
     geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-    var mat = new THREE.PointsMaterial({
+    return new THREE.Points(geo, new THREE.PointsMaterial({
       size: size, map: sprite, vertexColors: true, transparent: true,
-      opacity: 0.95, depthWrite: false, blending: THREE.AdditiveBlending,
-    });
-    return new THREE.Points(geo, mat);
+      opacity: opacity || 0.95, depthWrite: false, blending: THREE.AdditiveBlending,
+    }));
   }
 
-  // --- The hex board: 4 x 7, TFT's shape, edges drawn in particles ---
-  var board = new THREE.Group();
-  var HEX = 5.2, EDGE_PTS = 9;
-  var goldHexes = [[0, 3], [1, 1], [1, 5], [2, 2], [3, 4]]; // "pinned comp" glow
-  var pos = [], col = [], gpos = [], gcol = [];
+  var world = new THREE.Group();
+  scene.add(world);
+
+  // ---- The board: hex edges as glowing LINES + dense particles on top ----
+  var HEX = 6.4, EDGE_PTS = 16;
+  var goldHexes = [[0, 3], [1, 1], [1, 5], [2, 2], [3, 4]];
   function hexCenter(r, q) {
-    var x = (q - 3) * HEX * 1.74 + (r % 2 ? HEX * 0.87 : 0);
-    var z = (r - 1.5) * HEX * 1.5;
-    return [x, 0, z];
+    return [(q - 3) * HEX * 1.74 + (r % 2 ? HEX * 0.87 : 0), 0, (r - 1.5) * HEX * 1.5];
   }
-  for (var r = 0; r < 4; r++) {
-    for (var q = 0; q < 7; q++) {
-      var cxyz = hexCenter(r, q);
-      var isGold = goldHexes.some(function (h) { return h[0] === r && h[1] === q; });
-      for (var e = 0; e < 6; e++) {
-        var a1 = Math.PI / 3 * e + Math.PI / 6, a2 = Math.PI / 3 * (e + 1) + Math.PI / 6;
-        for (var k = 0; k < EDGE_PTS; k++) {
-          var t = k / EDGE_PTS;
-          var x = cxyz[0] + Math.cos(a1) * HEX * (1 - t) + Math.cos(a2) * HEX * t;
-          var z = cxyz[2] + Math.sin(a1) * HEX * (1 - t) + Math.sin(a2) * HEX * t;
-          var cc = isGold ? GOLD : (Math.random() < 0.5 ? BLUE : VIOLET);
-          (isGold ? gpos : pos).push(x, 0, z);
-          (isGold ? gcol : gcol && isGold ? gcol : col).push(cc.r, cc.g, cc.b);
-          if (isGold) {} else {}
+  var pPos = [], pCol = [], gPos = [], gCol = [], lPos = [], lCol = [];
+  for (var r = 0; r < 4; r++) for (var q = 0; q < 7; q++) {
+    var cz = hexCenter(r, q);
+    var isGold = goldHexes.some(function (h) { return h[0] === r && h[1] === q; });
+    var verts = [];
+    for (var e = 0; e <= 6; e++) {
+      var a = Math.PI / 3 * e + Math.PI / 6;
+      verts.push([cz[0] + Math.cos(a) * HEX, 0, cz[2] + Math.sin(a) * HEX]);
+    }
+    for (var e2 = 0; e2 < 6; e2++) {
+      var v1 = verts[e2], v2 = verts[e2 + 1];
+      lPos.push(v1[0], 0, v1[2], v2[0], 0, v2[2]);
+      var lc = isGold ? GOLD : VIOLET.clone().lerp(BLUE, Math.random());
+      lCol.push(lc.r, lc.g, lc.b, lc.r, lc.g, lc.b);
+      for (var k = 0; k < EDGE_PTS; k++) {
+        var t = k / EDGE_PTS;
+        var x = v1[0] * (1 - t) + v2[0] * t, z = v1[2] * (1 - t) + v2[2] * t;
+        if (isGold) { gPos.push(x, 0.15, z); gCol.push(GOLD.r, GOLD.g, GOLD.b); }
+        else {
+          var cc = Math.random() < 0.5 ? BLUE : VIOLET;
+          pPos.push(x, 0.1, z); pCol.push(cc.r, cc.g, cc.b);
         }
       }
     }
   }
-  var boardPts = makePoints(pos, col, 1.5);
-  var goldPts = makePoints(gpos, gcol, 2.4);
-  board.add(boardPts); board.add(goldPts);
-  board.rotation.x = -0.62;
-  board.position.set(9, -4, 0);
-  scene.add(board);
+  var lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(lPos, 3));
+  lineGeo.setAttribute('color', new THREE.Float32BufferAttribute(lCol, 3));
+  var lines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending }));
+  var boardPts = pts(pPos, pCol, 1.35);
+  var goldPts = pts(gPos, gCol, 2.6);
+  var board = new THREE.Group();
+  board.add(lines); board.add(boardPts); board.add(goldPts);
+  board.rotation.x = -0.32;
+  world.add(board);
 
-  // --- Streams: particle currents flowing into the board (the "hair") ---
-  var streams = new THREE.Group();
+  // ---- Streams feeding the board ----
   var streamData = [];
-  for (var sIdx = 0; sIdx < 6; sIdx++) {
-    var yy = 16 - sIdx * 6 + Math.random() * 2;
+  for (var sI = 0; sI < 8; sI++) {
+    var yy = 22 - sI * 5.4;
     var curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-95, yy + 8, -10 + sIdx * 3),
-      new THREE.Vector3(-60, yy + Math.sin(sIdx) * 6, 6),
-      new THREE.Vector3(-30, yy * 0.5, -2),
-      new THREE.Vector3(-4, -2 + sIdx * 0.6, 2),
+      new THREE.Vector3(-130, yy + 10, -20 + sI * 5),
+      new THREE.Vector3(-80, yy + Math.sin(sI * 1.7) * 8, 10 - sI * 2),
+      new THREE.Vector3(-42, yy * 0.45, -4),
+      new THREE.Vector3(-8, 1 + Math.sin(sI) * 2, (sI - 4) * 3),
     ]);
-    var N = 240, sp = [], sc = [], phase = [];
+    var N = 300, sp = [], sc = [], ph = [];
     for (var i = 0; i < N; i++) {
-      var t2 = i / N;
-      var p = curve.getPoint(t2);
-      sp.push(p.x, p.y + (Math.random() - 0.5) * 1.6, p.z + (Math.random() - 0.5) * 1.6);
-      var mix = BLUE.clone().lerp(VIOLET, t2 * 0.8 + Math.random() * 0.2);
+      var p0 = curve.getPoint(i / N);
+      sp.push(p0.x, p0.y, p0.z);
+      var mix = BLUE.clone().lerp(VIOLET, (i / N) * 0.85);
       sc.push(mix.r, mix.g, mix.b);
-      phase.push(Math.random());
+      ph.push(Math.random());
     }
-    var ptsObj = makePoints(sp, sc, 1.7);
-    streams.add(ptsObj);
-    streamData.push({ obj: ptsObj, curve: curve, phase: phase, n: N });
+    var o = pts(sp, sc, 1.8, 0.8);
+    world.add(o);
+    streamData.push({ obj: o, curve: curve, ph: ph, n: N });
   }
-  scene.add(streams);
 
-  // --- Ambient dust ---
+  // ---- Nebula dust shells ----
   var dp = [], dc = [];
-  for (var d = 0; d < 500; d++) {
-    dp.push((Math.random() - 0.5) * 190, (Math.random() - 0.5) * 110, (Math.random() - 0.5) * 60 - 10);
-    var cc2 = Math.random() < 0.12 ? GOLD : VIOLET;
-    dc.push(cc2.r * 0.7, cc2.g * 0.7, cc2.b * 0.7);
+  for (var d = 0; d < 1600; d++) {
+    var R = 90 + Math.random() * 160;
+    var th = Math.random() * Math.PI * 2, phi = Math.acos(2 * Math.random() - 1);
+    dp.push(R * Math.sin(phi) * Math.cos(th), R * Math.cos(phi) * 0.6, R * Math.sin(phi) * Math.sin(th));
+    var cc3 = Math.random() < 0.1 ? GOLD : (Math.random() < 0.5 ? VIOLET : BLUE);
+    dc.push(cc3.r * 0.55, cc3.g * 0.55, cc3.b * 0.55);
   }
-  scene.add(makePoints(dp, dc, 1.1));
+  world.add(pts(dp, dc, 1.4, 0.7));
+
+  // ---- Bloom (graceful if the passes failed to load) ----
+  var composer = null;
+  try {
+    composer = new THREE.EffectComposer(renderer);
+    composer.addPass(new THREE.RenderPass(scene, camera));
+    var bloom = new THREE.UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.9, 0.55, 0.12);
+    composer.addPass(bloom);
+  } catch (e) { composer = null; }
+
+  // ---- Camera stations: one per section — nav clicks & scroll fly you around ----
+  var V = THREE.Vector3;
+  var stations = [
+    { p: new V(6, 30, 96),   l: new V(0, 0, 0) },    // hero — wide reveal
+    { p: new V(-18, 16, 64), l: new V(4, 0, 0) },    // screenshot strip
+    { p: new V(-58, 18, 40), l: new V(0, 0, 0) },    // features — orbit left
+    { p: new V(34, 7, 30),   l: new V(4, 0, -4) },   // trainer — low over the gold
+    { p: new V(0, 92, 6),    l: new V(0, 0, 0) },    // compliance — bird's-eye rulebook
+    { p: new V(-30, 12, 44), l: new V(8, 0, 2) },    // pricing — swing to gold
+    { p: new V(24, 26, 70),  l: new V(0, 0, 0) },    // download
+    { p: new V(0, 40, 130),  l: new V(0, 0, 0) },    // faq — recede
+  ];
+  var anchors = [];
+  function measure() {
+    var list = [document.querySelector('.hero')].concat([].slice.call(document.querySelectorAll('section')));
+    anchors = list.slice(0, stations.length).map(function (el) { return el.offsetTop; });
+  }
+  addEventListener('load', measure); measure();
+
+  var camPos = stations[0].p.clone(), camLook = stations[0].l.clone();
+  function targetFor(y) {
+    var i = 0;
+    while (i < anchors.length - 1 && y >= anchors[i + 1] - innerHeight * 0.45) i++;
+    var a0 = anchors[i], a1 = anchors[i + 1] != null ? anchors[i + 1] : a0 + innerHeight;
+    var t = Math.min(1, Math.max(0, (y - (a0 - innerHeight * 0.45)) / Math.max(1, a1 - a0)));
+    t = t * t * (3 - 2 * t);
+    var s0 = stations[i], s1 = stations[Math.min(i + 1, stations.length - 1)];
+    return { p: s0.p.clone().lerp(s1.p, t), l: s0.l.clone().lerp(s1.l, t) };
+  }
 
   var mouse = { x: 0, y: 0 };
   addEventListener('mousemove', function (e) {
-    mouse.x = (e.clientX / innerWidth - 0.5);
-    mouse.y = (e.clientY / innerHeight - 0.5);
+    mouse.x = e.clientX / innerWidth - 0.5;
+    mouse.y = e.clientY / innerHeight - 0.5;
   });
 
   function resize() {
-    var w = canvas.clientWidth || canvas.parentElement.clientWidth;
-    var h = canvas.clientHeight || 600;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
+    renderer.setSize(innerWidth, innerHeight, false);
+    camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
+    if (composer) composer.setSize(innerWidth, innerHeight);
+    measure();
   }
   addEventListener('resize', resize);
   resize();
@@ -308,26 +354,29 @@
   var t0 = 0;
   function frame(t) {
     t0 = t * 0.001;
-    board.rotation.z = Math.sin(t0 * 0.25) * 0.05;
-    board.position.y = -4 + Math.sin(t0 * 0.7) * 1.1;
-    goldPts.material.size = 2.4 + Math.sin(t0 * 2.2) * 0.7;
-    goldPts.material.opacity = 0.75 + Math.sin(t0 * 2.2) * 0.25;
+    world.rotation.y = Math.sin(t0 * 0.06) * 0.12;
+    board.position.y = Math.sin(t0 * 0.7) * 1.4;
+    goldPts.material.size = 2.6 + Math.sin(t0 * 2.4) * 0.9;
+    goldPts.material.opacity = 0.7 + Math.sin(t0 * 2.4) * 0.3;
+    lines.material.opacity = 0.42 + Math.sin(t0 * 1.1) * 0.12;
     streamData.forEach(function (sd, i2) {
       var attr = sd.obj.geometry.attributes.position;
       for (var k2 = 0; k2 < sd.n; k2++) {
-        var prog = (k2 / sd.n + t0 * 0.055 + sd.phase[k2] * 0.02) % 1;
+        var prog = (k2 / sd.n + t0 * 0.05 + sd.ph[k2] * 0.02) % 1;
         var p2 = sd.curve.getPoint(prog);
         attr.array[k2 * 3] = p2.x;
-        attr.array[k2 * 3 + 1] = p2.y + Math.sin(t0 * 2 + k2) * 0.5;
-        attr.array[k2 * 3 + 2] = p2.z + Math.cos(t0 * 1.4 + k2 * 0.6) * 0.5;
+        attr.array[k2 * 3 + 1] = p2.y + Math.sin(t0 * 2 + k2) * 0.6;
+        attr.array[k2 * 3 + 2] = p2.z + Math.cos(t0 * 1.4 + k2 * 0.6) * 0.6;
       }
       attr.needsUpdate = true;
-      sd.obj.material.opacity = 0.55 + 0.25 * Math.sin(t0 * 1.3 + i2);
+      sd.obj.material.opacity = 0.5 + 0.3 * Math.sin(t0 * 1.2 + i2);
     });
-    camera.position.x += ((mouse.x * 10) - camera.position.x) * 0.04;
-    camera.position.y += ((12 - mouse.y * 8) - camera.position.y) * 0.04;
-    camera.lookAt(4, -2, 0);
-    renderer.render(scene, camera);
+    var tgt = targetFor(scrollY);
+    camPos.lerp(tgt.p, 0.055);
+    camLook.lerp(tgt.l, 0.055);
+    camera.position.set(camPos.x + mouse.x * 7, camPos.y - mouse.y * 5, camPos.z);
+    camera.lookAt(camLook);
+    if (composer) composer.render(); else renderer.render(scene, camera);
     if (!reduced) requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
