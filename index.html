@@ -350,15 +350,17 @@
   // ---- Camera stations: one per section — nav clicks & scroll fly you around ----
   var V = THREE.Vector3;
   var stations = [
-    { p: new V(0, 26, 122),   l: new V(0, 14, 0),  r: 0 },
-    { p: new V(-34, 20, 84),  l: new V(6, -6, 0),  r: 0.05 },
-    { p: new V(-88, 26, 30),  l: new V(0, -4, 0),  r: 0.09 },
-    { p: new V(52, 10, 42),   l: new V(6, -2, -6), r: -0.08 },
-    { p: new V(0, 128, 2),    l: new V(0, 0, 0),   r: 0 },
-    { p: new V(-52, 14, -58), l: new V(0, -2, 0),  r: 0.07 },
-    { p: new V(36, 30, 92),   l: new V(0, -4, 0),  r: -0.04 },
-    { p: new V(0, 46, 160),   l: new V(0, -2, 0),  r: 0 },
+    { p: new V(0, 26, 122),   l: new V(0, 14, 0), r: 0 },     // hero: front, nexus crowned
+    { p: new V(-43, 20, 88),  l: new V(0, 6, 0),  r: 0.03 },  // drift left begins
+    { p: new V(-75, 22, 43),  l: new V(0, 2, 0),  r: 0.05 },  // features: left flank
+    { p: new V(-58, 11, -21), l: new V(6, 0, -4), r: -0.05 }, // trainer: low pass, back-left
+    { p: new V(0, 112, -26),  l: new V(0, 0, 0),  r: 0 },     // compliance: crane up, bird's eye
+    { p: new V(62, 17, -36),  l: new V(0, 0, 0),  r: 0.04 },  // pricing: descend, back-right
+    { p: new V(83, 26, 48),   l: new V(0, 2, 0),  r: -0.03 }, // download: right flank
+    { p: new V(0, 42, 158),   l: new V(0, 6, 0),  r: 0 },     // faq: full circle, receded
   ];
+  var camPath = new THREE.CatmullRomCurve3(stations.map(function (s2) { return s2.p; }));
+  var lookPath = new THREE.CatmullRomCurve3(stations.map(function (s2) { return s2.l; }));
   var anchors = [];
   function measure() {
     var list = [document.querySelector('.hero')].concat([].slice.call(document.querySelectorAll('section')));
@@ -378,8 +380,9 @@
     var a0 = anchors[i2], a1 = anchors[i2 + 1] != null ? anchors[i2 + 1] : a0 + innerHeight;
     var t = Math.min(1, Math.max(0, (mid - a0) / Math.max(1, a1 - a0)));
     t = t * t * (3 - 2 * t);
-    var s0 = stations[i2], s1 = stations[Math.min(i2 + 1, stations.length - 1)];
-    return { i: i2, p: s0.p.clone().lerp(s1.p, t), l: s0.l.clone().lerp(s1.l, t), r: (s0.r || 0) * (1 - t) + (s1.r || 0) * t };
+    var u = (i2 + t) / (stations.length - 1);
+    var r0 = stations[i2].r || 0, r1 = stations[Math.min(i2 + 1, stations.length - 1)].r || 0;
+    return { i: i2, p: camPath.getPoint(u), l: lookPath.getPoint(u), r: r0 * (1 - t) + r1 * t };
   }
   function markNav(i2) {
     var map = { 2: '#features', 3: '#trainer', 4: '#compliance', 5: '#pricing', 7: '#faq' };
@@ -405,7 +408,7 @@
   var t0 = 0;
   function frame(t) {
     t0 = t * 0.001;
-    world.rotation.y = Math.sin(t0 * 0.06) * 0.12;
+    world.rotation.y = Math.sin(t0 * 0.06) * 0.05;
     board.position.y = Math.sin(t0 * 0.7) * 1.4;
     goldPts.material.size = 2.6 + Math.sin(t0 * 2.4) * 0.9;
     goldPts.material.opacity = 0.7 + Math.sin(t0 * 2.4) * 0.3;
@@ -427,6 +430,7 @@
     var tgt = scrollTarget(scrollY);
     if (tgt.i !== activeIdx) { activeIdx = tgt.i; markNav(activeIdx); }
     window.__cmIdx = activeIdx;
+    window.__cmCam = [camera.position.x, camera.position.y, camera.position.z];
     flight = Math.max(0, flight - 0.014);
     var ease = 0.075 + flight * 0.1; // scroll-synced glide, boosted right after a nav click
     camPos.lerp(tgt.p, ease);
